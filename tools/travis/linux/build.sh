@@ -1,5 +1,5 @@
-#!/bin/bash
-source "$TRAVIS_BUILD_DIR"/tools/travis/linux/config
+#!/bin/sh
+. "$TRAVIS_BUILD_DIR"/tools/travis/linux/config
 
 cmake \
 -DCMAKE_INSTALL_PREFIX="$ROR_INSTALL_DIR" \

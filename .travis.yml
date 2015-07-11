@@ -1,5 +1,5 @@
 language: cpp
-sudo: required
+sudo: false
 
 compiler:
   - gcc
@@ -9,8 +9,33 @@ env:
   - ANALYZE=false
   - ANALYZE=true
 
+addons:
+  apt:
+    packages:
+    - gcc-4.8
+    - libboost1.55-all-dev
+    - build-essential
+    - git
+    - cmake
+    - pkg-config
+    - libfreetype6-dev
+    - libfreeimage-dev
+    - libzzip-dev
+    - libois-dev
+    - libgl1-mesa-dev
+    - libglu1-mesa-dev
+    - libopenal-dev
+    - libx11-dev
+    - libxt-dev
+    - libxaw7-dev
+    - libxrandr-dev
+    - libssl-dev
+    - libcurl4-openssl-dev
+    - libgtk2.0-dev
+    - libwxgtk3.0-dev
+
 before_install:
-  # Show some information about the underlying system
+  # Show some information about the underlying system :nerd:
   - cat /proc/cpuinfo | grep -m1 "model name"  # CPU model
 
   # Make our build scripts executable
@@ -18,22 +43,15 @@ before_install:
   - chmod +x ./tools/travis/linux/dependencies.sh
   - chmod +x ./tools/travis/linux/build.sh
 
-  # Install and update some software
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo add-apt-repository ppa:boost-latest/ppa -y
-  - if [ $ANALYZE = "false" ]; then sudo apt-get update -qq; fi  # We don't need to update for code analysis
-  - if [ $ANALYZE = "true" ]; then sudo apt-get install -qq cppcheck; fi
-
-  # The following updates are needed for Travis VM running Ubuntu 12.04 and should be removed when Travis updates their OS
-  # update gcc for C++11 support
-  - if [ "$CXX" = "g++" ] && [ $ANALYZE = "false" ]; then sudo apt-get install -qq g++-4.8; export CXX="g++-4.8" CC="gcc-4.8"; fi
-  # update Boost to fix C++11 bug
-  - if [ $ANALYZE = "false" ]; then sudo apt-get install -qq libboost1.55-all-dev; fi
+  # export gcc version to use
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 script:
   - ./tools/travis/linux/travis.sh
 
 notifications:
+  email: false
+
   irc:
     template:
       - "%{repository}#%{build_number} %{commit} %{author}: %{message} %{build_url}"

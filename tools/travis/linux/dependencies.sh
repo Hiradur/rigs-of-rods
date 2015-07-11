@@ -1,18 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 #Initialization
-source "$TRAVIS_BUILD_DIR"/tools/travis/linux/config
+. "$TRAVIS_BUILD_DIR"/tools/travis/linux/config
 mkdir -p "$ROR_SOURCE_DIR"
 mkdir -p "$ROR_INSTALL_DIR"
-
-#Precompiled dependencies
-#sudo apt-get update
-sudo apt-get install -qq build-essential git cmake pkg-config \
-libfreetype6-dev libfreeimage-dev libzzip-dev libois-dev \
-libgl1-mesa-dev libglu1-mesa-dev libopenal-dev  \
-libx11-dev libxt-dev libxaw7-dev libxrandr-dev \
-libssl-dev libcurl4-openssl-dev libgtk2.0-dev libwxgtk3.0-dev
-# libboost-all-dev (too old) nvidia-cg-toolkit (needed only at runtime, does not affect RoR build)
 
 # OGRE
 cd "$ROR_SOURCE_DIR"
