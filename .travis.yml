@@ -11,6 +11,10 @@ env:
 
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - boost-latest
+    
     packages:
     - gcc-4.8
     - libboost1.55-all-dev
@@ -32,7 +36,7 @@ addons:
     - libssl-dev
     - libcurl4-openssl-dev
     - libgtk2.0-dev
-    - libwxgtk3.0-dev
+    - libwxgtk2.8-dev
 
 before_install:
   # Show some information about the underlying system :nerd:
@@ -56,7 +60,7 @@ notifications:
     template:
       - "%{repository}#%{build_number} %{commit} %{author}: %{message} %{build_url}"
     channels:
-      - "irc.freenode.org#rigsofrods-dev"
+      - "chat.freenode.net#rigsofrods-dev"
     use_notice: true
     skip_join: true
 

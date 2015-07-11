@@ -1,4 +1,5 @@
 #!/bin/sh
+set -eu
 
 #Initialization
 . "$TRAVIS_BUILD_DIR"/tools/travis/linux/config

@@ -3,6 +3,8 @@
 # Build script for travis-ci.org builds to handle compiles 
 # and static analysis when ANALYZE=true.
 #
+set -eu
+
 if [ $ANALYZE = "true" ]; then
 	# build cppcheck
 	cd ~/

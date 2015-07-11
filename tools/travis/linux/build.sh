@@ -1,4 +1,6 @@
 #!/bin/sh
+set -eu
+
 . "$TRAVIS_BUILD_DIR"/tools/travis/linux/config
 
 cmake \
