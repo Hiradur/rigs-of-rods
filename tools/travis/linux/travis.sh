@@ -11,20 +11,20 @@ if [ $ANALYZE = "true" ]; then
 	git clone https://github.com/danmar/cppcheck.git
 	cd cppcheck
 	make -j2 -pipe
-	export PATH=$PATH:~/cppcheck
-	cd "$TRAVIS_BUILD_DIR"
-
+	#export PATH=$PATH:~/cppcheck
+	
 	# run cppcheck
-        cppcheck --version
-        cppcheck \
+	cd "$TRAVIS_BUILD_DIR"
+        ~/cppcheck/cppcheck --version
+        ~/cppcheck/cppcheck \
           --template "{file}({line}): {severity} ({id}): {message}" \
           --enable=warning,information,performance,unusedFunction \
           --force --std=c++11 -j2 ./source \
           1> /dev/null 2> cppcheck.txt
 
-	# if cppcheck.txt exists defect were found in the code
-	# we could exit with 1 do make the Travis build appear as failed
-	# but we don't to that because there is a lot to be cleaned up first
+	# If cppcheck.txt exists defects were found in the code.
+	# We could exit with 1 to make the Travis build appear as failed
+	# but we don't do that because there is a lot to be cleaned up first
         if [ -s cppcheck.txt ]; then
             cat cppcheck.txt
             exit 0
