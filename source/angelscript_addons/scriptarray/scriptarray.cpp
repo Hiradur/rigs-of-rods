@@ -74,10 +74,9 @@ static bool ScriptArrayTemplateCallback(asIObjectType *ot)
 			for( asUINT n = 0; n < subtype->GetBehaviourCount(); n++ )
 			{
 				asEBehaviours beh;
-				int funcId = subtype->GetBehaviourByIndex(n, &beh);
+				asIScriptFunction *func = subtype->GetBehaviourByIndex(n, &beh);
 				if( beh != asBEHAVE_CONSTRUCT ) continue;
 
-				asIScriptFunction *func = ot->GetEngine()->GetFunctionById(funcId);
 				if( func->GetParamCount() == 0 )
 				{
 					// Found the default constructor
@@ -93,8 +92,7 @@ static bool ScriptArrayTemplateCallback(asIObjectType *ot)
 			// Verify that there is a default factory
 			for( asUINT n = 0; n < subtype->GetFactoryCount(); n++ )
 			{
-				int funcId = subtype->GetFactoryIdByIndex(n);
-				asIScriptFunction *func = ot->GetEngine()->GetFunctionById(funcId);
+				asIScriptFunction *func = subtype->GetFactoryByIndex(n);
 				if( func->GetParamCount() == 0 )
 				{
 					// Found the default factory
@@ -233,7 +231,7 @@ CScriptArray::CScriptArray(asUINT length, asIObjectType *ot)
 
 	// Notify the GC of the successful creation
 	if( objType->GetFlags() & asOBJ_GC )
-		objType->GetEngine()->NotifyGarbageCollectorOfNewObject(this, objType->GetTypeId());
+		objType->GetEngine()->NotifyGarbageCollectorOfNewObject(this, objType);
 }
 
 CScriptArray::CScriptArray(asUINT length, void *defVal, asIObjectType *ot)
@@ -267,7 +265,7 @@ CScriptArray::CScriptArray(asUINT length, void *defVal, asIObjectType *ot)
 
 	// Notify the GC of the successful creation
 	if( objType->GetFlags() & asOBJ_GC )
-		objType->GetEngine()->NotifyGarbageCollectorOfNewObject(this, objType->GetTypeId());
+		objType->GetEngine()->NotifyGarbageCollectorOfNewObject(this, objType);
 
 	// Initialize the elements with the default value
 	for( asUINT n = 0; n < GetSize(); n++ )
@@ -277,8 +275,11 @@ CScriptArray::CScriptArray(asUINT length, void *defVal, asIObjectType *ot)
 // Internal
 void CScriptArray::SetValue(asUINT index, void *value)
 {
-	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) )
-		objType->GetEngine()->CopyScriptObject(At(index), value, subTypeId);
+	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) ) 
+	{
+		asIScriptEngine *engine = objType->GetEngine();
+		engine->AssignScriptObject(At(index), value, engine->GetObjectTypeById(subTypeId));
+	}
 	else if( subTypeId & asTYPEID_OBJHANDLE )
 	{
 		*(void**)At(index) = *(void**)value;
@@ -523,7 +524,7 @@ void CScriptArray::Construct(SArrayBuffer *buf, asUINT start, asUINT end)
 		asIScriptEngine *engine = objType->GetEngine();
 
 		for( ; d < max; d++ )
-			*d = (void*)engine->CreateScriptObject(subTypeId);
+			*d = (void*)engine->CreateScriptObject(engine->GetObjectTypeById(subTypeId));
 	}
 }
 
@@ -581,7 +582,7 @@ bool CScriptArray::Less(const void *a, const void *b, bool asc, asIScriptContext
 
 		// Execute object opCmp
 		// TODO: Add proper error handling
-		r = ctx->Prepare(cmpFuncId); assert(r >= 0);
+		r = ctx->Prepare(objType->GetEngine()->GetFunctionById(cmpFuncId)); assert(r >= 0);
 		r = ctx->SetObject((void*)a); assert(r >= 0);
 		r = ctx->SetArgAddress(0, (void*)b); assert(r >= 0);
 		r = ctx->Execute();
@@ -641,7 +642,7 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx)
 		if( eqFuncId >= 0 )
 		{
 			// TODO: Add proper error handling
-			r = ctx->Prepare(eqFuncId); assert(r >= 0);
+			r = ctx->Prepare(objType->GetEngine()->GetFunctionById(eqFuncId)); assert(r >= 0);
 			r = ctx->SetObject((void*)a); assert(r >= 0);
 			r = ctx->SetArgAddress(0, (void*)b); assert(r >= 0);
 			r = ctx->Execute();
@@ -656,7 +657,7 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx)
 		if( cmpFuncId >= 0 )
 		{
 			// TODO: Add proper error handling
-			r = ctx->Prepare(cmpFuncId); assert(r >= 0);
+			r = ctx->Prepare(objType->GetEngine()->GetFunctionById(cmpFuncId)); assert(r >= 0);
 			r = ctx->SetObject((void*)a); assert(r >= 0);
 			r = ctx->SetArgAddress(0, (void*)b); assert(r >= 0);
 			r = ctx->Execute();
@@ -904,7 +905,7 @@ void CScriptArray::CopyBuffer(SArrayBuffer *dst, SArrayBuffer *src)
 				void **s   = (void**)src->data;
 
 				for( ; d < max; d++, s++ )
-					engine->CopyScriptObject(*d, *s, subTypeId);
+					engine->AssignScriptObject(*d, *s, engine->GetObjectTypeById(subTypeId));
 			}
 			else
 			{
@@ -948,12 +949,12 @@ void CScriptArray::Precache()
 					{
 						if( returnTypeId == asTYPEID_INT32 && strcmp(func->GetName(), "opCmp") == 0 )
 						{
-							cmpFuncId = subType->GetMethodIdByIndex(i);
+							cmpFuncId = subType->GetMethodByIndex(i)->GetTypeId();
 						}
 
 						if( returnTypeId == asTYPEID_BOOL && strcmp(func->GetName(), "opEquals") == 0 )
 						{
-							eqFuncId = subType->GetMethodIdByIndex(i);
+							eqFuncId = subType->GetMethodByIndex(i)->GetTypeId();
 						}
 
 						if( cmpFuncId >= 0 && eqFuncId >= 0 )

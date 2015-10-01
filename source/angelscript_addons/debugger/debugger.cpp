@@ -405,7 +405,7 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 {
 	asIScriptEngine *engine = ctx->GetEngine();
 
-	int len;
+	asUINT len;
 	asETokenClass t = engine->ParseToken(expr.c_str(), 0, &len);
 
 	// TODO: If the expression starts with :: we should only look for global variables
@@ -447,7 +447,7 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 					const char *propName = 0;
 					int offset = 0;
 					bool isReference = 0;
-					type->GetProperty(n, &propName, &typeId, 0, &offset, &isReference);
+					type->GetProperty(n, &propName, &typeId, 0, 0, &offset, &isReference, 0);
 					if( name == propName )
 					{
 						ptr = (void*)(((asBYTE*)ctx->GetThisPointer())+offset);
@@ -467,7 +467,8 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 				for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
 				{
 					const char *varName = 0;
-					mod->GetGlobalVar(n, &varName, &typeId);
+					const char *varNameSpace = 0;
+					mod->GetGlobalVar(n, &varName, &varNameSpace, &typeId);
 					if( name == varName )
 					{
 						ptr = mod->GetAddressOfGlobalVar(n);
@@ -542,7 +543,7 @@ void CDebugger::ListGlobalVariables(asIScriptContext *ctx)
 	for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
 	{
 		int typeId;
-		mod->GetGlobalVar(n, 0, &typeId);
+		mod->GetGlobalVar(n, 0, 0, &typeId);
 		s << mod->GetGlobalVarDeclaration(n) << " = " << ToString(mod->GetAddressOfGlobalVar(n), typeId, false, ctx->GetEngine()) << endl;
 	}
 	Output(s.str());

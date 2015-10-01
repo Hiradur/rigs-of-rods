@@ -183,7 +183,7 @@ int CScriptBuilder::ProcessScriptSection(const char *script, const char *section
 	int nested = 0;
 	while( pos < (int)modifiedScript.size() )
 	{
-		int len;
+		asUINT len;
 		asETokenClass t = engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
 		if( t == asTC_UNKNOWN && modifiedScript[pos] == '#' )
 		{
@@ -252,7 +252,7 @@ int CScriptBuilder::ProcessScriptSection(const char *script, const char *section
 	pos = 0;
 	while( pos < (int)modifiedScript.size() )
 	{
-		int len;
+		asUINT len;
 		asETokenClass t = engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
 		if( t == asTC_COMMENT || t == asTC_WHITESPACE )
 		{
@@ -433,7 +433,7 @@ int CScriptBuilder::Build()
 		else if( decl->type == 2 )
 		{
 			// Find the function id
-			int funcId = module->GetFunctionIdByDecl(decl->declaration.c_str());
+			int funcId = module->GetFunctionByDecl(decl->declaration.c_str())->GetTypeId();
 			if( funcId >= 0 )
 				funcMetadataMap.insert(map<int, string>::value_type(funcId, decl->metadata));
 		}
@@ -486,7 +486,7 @@ int CScriptBuilder::Build()
 
 int CScriptBuilder::SkipStatement(int pos)
 {
-	int len;
+	asUINT len;
 
 	// Skip until ; or { whichever comes first
 	while( pos < (int)modifiedScript.length() && modifiedScript[pos] != ';' && modifiedScript[pos] != '{' )
@@ -525,7 +525,7 @@ int CScriptBuilder::SkipStatement(int pos)
 // Overwrite all code with blanks until the matching #endif
 int CScriptBuilder::ExcludeCode(int pos)
 {
-	int len;
+	asUINT len;
 	int nested = 0;
 	while( pos < (int)modifiedScript.size() )
 	{
@@ -588,7 +588,7 @@ int CScriptBuilder::ExtractMetadataString(int pos, string &metadata)
 	pos += 1;
 
 	int level = 1;
-	int len;
+	asUINT len;
 	while( level > 0 && pos < (int)modifiedScript.size() )
 	{
 		asETokenClass t = engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
@@ -622,7 +622,7 @@ int CScriptBuilder::ExtractDeclaration(int pos, string &declaration, int &type)
 	int start = pos;
 
 	std::string token;
-	int len = 0;
+	asUINT len = 0;
 	asETokenClass t = asTC_WHITESPACE;
 
 	// Skip white spaces and comments

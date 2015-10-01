@@ -65,7 +65,7 @@ void ScriptCreateCoRoutine(string &func, CScriptAny *arg)
 
 		// We need to find the function that will be created as the co-routine
 		string decl = "void " + func + "(any @)";
-		int funcId = engine->GetModule(mod.c_str())->GetFunctionIdByDecl(decl.c_str());
+		int funcId = engine->GetModule(mod.c_str())->GetFunctionByDecl(decl.c_str())->GetTypeId();
 		if( funcId < 0 )
 		{
 			// No function could be found, raise an exception
@@ -244,7 +244,7 @@ asIScriptContext *CContextMgr::AddContext(asIScriptEngine *engine, int funcId)
 		return 0;
 
 	// Prepare it to execute the function
-	int r = ctx->Prepare(funcId);
+	int r = ctx->Prepare(engine->GetFunctionById(funcId));
 	if( r < 0 )
 	{
 		ctx->Release();
@@ -281,7 +281,7 @@ asIScriptContext *CContextMgr::AddContextForCoRoutine(asIScriptContext *currCtx,
 	}
 
 	// Prepare the context
-	int r = coctx->Prepare(funcId);
+	int r = coctx->Prepare(engine->GetFunctionById(funcId));
 	if( r < 0 )
 	{
 		// Couldn't prepare the context

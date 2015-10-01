@@ -333,7 +333,7 @@ void GameScript::spawnObject(const String &objectName, const String &instanceNam
 		return;
 	}
 	if (!mod) return;
-	int functionPtr = mod->GetFunctionIdByName(eventhandler.c_str());
+	int functionPtr = mod->GetFunctionByDecl(eventhandler.c_str())->GetTypeId();
 
 	// trying to create the new object
 	SceneNode *bakeNode = gEnv->sceneManager->getRootSceneNode()->createChildSceneNode();
