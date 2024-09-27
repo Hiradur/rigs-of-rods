@@ -263,6 +263,28 @@ SoundManager::~SoundManager()
     LOG("SoundManager destroyed.");
 }
 
+bool SoundManager::registerEfxPreset(std::string preset_name, EFXEAXREVERBPROPERTIES efx_properties)
+{
+    const auto result = this->efx_properties_map.insert({preset_name, efx_properties});
+    if (!std::get<1>(result))
+    {
+        LOG("SoundManager: Failed to register Efx Reverb Preset " + std::get<0>(result)->first);
+        return false;
+    }
+    return true;
+}
+
+bool SoundManager::unregisterEfxPreset(std::string preset_name)
+{
+    int num_deleted_entries = this->efx_properties_map.erase(preset_name);
+    if (num_deleted_entries == 0)
+    {
+        LOG("SoundManager: Requested to delete Efx Preset `" + preset_name + "`, but deletion was not successful");
+        return false;
+    }
+    return true;
+}
+
 void SoundManager::prepopulate_efx_property_map()
 {
     this->efx_properties_map["EFX_REVERB_PRESET_GENERIC"] = EFX_REVERB_PRESET_GENERIC;

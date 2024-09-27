@@ -70,10 +70,46 @@ public:
 
     bool isDisabled() { return audio_device == 0; }
 
+    /**
+    * Returns the speed of sound that is currently set for OpenAL
+    * @return Speed of Sound
+    */
     float getSpeedOfSound() { return alGetFloat(AL_SPEED_OF_SOUND); }
+
+    /**
+    * Sets the speed of sound
+    * @param speed_of_sound Speed of Sound in RoR_unit (=1 meter)/ second (must not be negative)
+    */
     void setSpeedOfSound(float speed_of_sound) { alSpeedOfSound(speed_of_sound); }
+
+    /**
+    * Returns the value set for the Doppler Factor
+    * @return Doppler Factor
+    */
     float getDopplerFactor() { return alGetFloat(AL_DOPPLER_FACTOR); }
+
+    /**
+    * Sets the Doppler Factor
+    * @param doppler_factor Doppler Factor (must not be negative)
+    */
     void setDopplerFactor(float doppler_factor) { alDopplerFactor(doppler_factor); }
+
+    /**
+    * Registers an OpenAL EFX Preset
+    * @param preset_name Name of the EFX Preset (should later be used to reference it)
+    * @param efx_properties EFXEAXREVERBPROPERTIES structure that stores the properties of the EFX preset
+    * @return Returns true if the preset was successfully inserted, false otherwise
+    * @see https://github.com/kcat/openal-soft/blob/36f2a1c31261a1f97162b90d8f1e80c68d059183/include/AL/efx-presets.h#L9-L33
+    * @see https://openal-soft.org/misc-downloads/Effects%20Extension%20Guide.pdf
+    */
+    bool registerEfxPreset(std::string preset_name, EFXEAXREVERBPROPERTIES efx_properties);
+
+    /**
+    * Unregisters an OpenAL EFX Preset by name
+    * @param preset_name Name of the EFX Preset that should be unregistered. This deletes the preset and renders it unusable.
+    * @return Returns true if the preset was found and deleted, false otherwise
+    */
+    bool unregisterEfxPreset(std::string preset_name);
 
     int getNumHardwareSources() { return hardware_sources_num; }
 
