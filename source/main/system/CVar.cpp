@@ -154,14 +154,14 @@ void Console::cVarSetupBuiltins()
     App::audio_master_volume                       = this->cVarCreate("audio_master_volume",                       "Sound Volume",                      CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::audio_enable_creak                        = this->cVarCreate("audio_enable_creak",                        "Creak Sound",                       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::audio_enable_obstruction                  = this->cVarCreate("audio_enable_obstruction",                  "Obstruction of sounds",             CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::audio_enable_reflection_panning           = this->cVarCreate("audio_enable_reflection_panning",           "Pan reflections",                   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::audio_enable_reflection_panning           = this->cVarCreate("audio_enable_reflection_panning",           "Pan reflections",                   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::audio_device_name                         = this->cVarCreate("audio_device_name",                         "AudioDevice",                       CVAR_ARCHIVE);
     App::audio_doppler_factor                      = this->cVarCreate("audio_doppler_factor",                      "Doppler Factor",                    CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::audio_menu_music                          = this->cVarCreate("audio_menu_music",                          "MainMenuMusic",                     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::audio_enable_efx                          = this->cVarCreate("audio_enable_efx",                          "Enable OpenAL EFX",                 CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
-    App::audio_engine_controls_environmental_audio = this->cVarCreate("audio_engine_controls_environmental_audio", "Engine-controlled environm. audio",                CVAR_TYPE_BOOL,    "true");
+    App::audio_engine_controls_environmental_audio = this->cVarCreate("audio_engine_controls_environmental_audio", "Engine-controlled environm. audio",                CVAR_TYPE_BOOL,    "false");
     App::audio_efx_reverb_engine                   = this->cVarCreate("audio_efx_reverb_engine",                   "OpenAL EFX Reverb Engine",          CVAR_ARCHIVE | CVAR_TYPE_INT,     "2"/*(int)EfxReverbEngine::EAXREVERB*/);
-    App::audio_listener_efx_preset                 = this->cVarCreate("audio_listener_efx_preset",                 "OpenAL listener EFX preset",        0,                                "");
+    App::audio_listener_efx_preset                 = this->cVarCreate("audio_listener_efx_preset",                 "OpenAL listener EFX preset",        0,                                "EFX_REVERB_PRESET_CITY_STREETS");
 
     App::gfx_flares_mode         = this->cVarCreate("gfx_flares_mode",         "Lights",                     CVAR_ARCHIVE | CVAR_TYPE_INT,     "4"/*(int)GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS*/);
     App::gfx_polygon_mode        = this->cVarCreate("gfx_polygon_mode",        "Polygon mode",                              CVAR_TYPE_INT,     "1"/*(int)Ogre::PM_SOLID*/);
