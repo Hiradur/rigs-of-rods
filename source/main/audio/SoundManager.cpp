@@ -404,16 +404,20 @@ void SoundManager::updateListenerEffectSlot()
             {
                 // rotate listener_direction vector around listener_up vector based on angle
                 Ogre::Vector3 raycast_direction = Quaternion(Ogre::Degree(angle), listener_up) * listener_direction;
-                LOG("SoundManager: ray(hor): " + std::to_string(raycast_direction.x) + " " + std::to_string(raycast_direction.y) + " " + std::to_string(raycast_direction.z));
+                //LOG("SoundManager: ray(hor): " + std::to_string(raycast_direction.x) + " " + std::to_string(raycast_direction.y) + " " + std::to_string(raycast_direction.z));
                 raycast_direction.normalise();
-                Ray ray = Ray(listener_position, listener_position + raycast_direction * max_distance);
+                Ray ray = Ray(listener_position, raycast_direction * 2.0f * max_distance);
+                // Ogre::Vector3 debug = ray.getDirection();
+                // LOG("SoundManager: ray(hor): " + std::to_string(debug.x) + " " + std::to_string(debug.y) + " " + std::to_string(debug.z) + " " + std::to_string(ray.getDirection().length()));
                 std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(ray);
 
                 if (intersection.first) // the ray hit something
                 {
-                    LOG("SoundManager: hit(hor): " + std::to_string(angle));
+                    if (intersection.second > max_distance) { continue; }
+                    LOG("SoundManager: hit(hor): " + std::to_string(angle) + "dist: " + std::to_string(intersection.second));
                     collision_count++;
-                    reflection_panning_direction += intersection.second / max_distance * raycast_direction;
+                    // add direction to the panning vector weighted by distance
+                    reflection_panning_direction += (1.0f - intersection.second / max_distance) * raycast_direction;
                     closest_surface_distance = std::min(intersection.second, closest_surface_distance);
                 }
             }
@@ -425,14 +429,18 @@ void SoundManager::updateListenerEffectSlot()
                 // rotate listener_up vector around listener_direction vector based on angle
                 Ogre::Vector3 raycast_direction = Quaternion(Ogre::Degree(angle), listener_direction) * listener_up;
                 raycast_direction.normalise();
-                Ray ray = Ray(listener_position, listener_position + raycast_direction * max_distance);
+                //LOG("SoundManager: ray(vert): " + std::to_string(raycast_direction.x) + " " + std::to_string(raycast_direction.y) + " " + std::to_string(raycast_direction.z));
+                Ray ray = Ray(listener_position, raycast_direction * 2.0f * max_distance);
+                // Ogre::Vector3 debug = ray.getDirection();
+                // LOG("SoundManager: ray(vert): " + std::to_string(debug.x) + " " + std::to_string(debug.y) + " " + std::to_string(debug.z) + " " + std::to_string(ray.getDirection().length()));
                 std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(ray);
 
                 if (intersection.first) // the ray hit something
                 {
-                    LOG("SoundManager: hit(vert): " + std::to_string(angle));
+                    if (intersection.second > max_distance) { continue; }
+                    LOG("SoundManager: hit(vert): " + std::to_string(angle) + "dist: " + std::to_string(intersection.second));
                     collision_count++;
-                    reflection_panning_direction += intersection.second / max_distance * raycast_direction;
+                    reflection_panning_direction += (1.0f - intersection.second / max_distance) * raycast_direction;
                     closest_surface_distance = std::min(intersection.second, closest_surface_distance);
                 }
             }
@@ -459,24 +467,18 @@ LOG("SoundManager: mag: " + std::to_string(magnitude));
                 //      3.16f);
             }
 
-            // transform reflection_panning_direction vector to listener-relative EAXREVERB reflection-panning vector
-            // invert z since EAXREVERB panning vectors use a left-handed coordinate system
-
-            // determine the angle between listener_direction and straight ahead vector (0, 0, 1)
-            float angle = std::acos(-listener_direction.z);
-
-            if (listener_direction.x < 0)
-            {
-                angle = -angle;
-            }
+            /*
+             * The EAXREVERB panning vectors do not take the 3D listener orientation into account. Hence; we need to
+             * transform the reflection_panning_direction vector to the user-relative EAXREVERB reflection-panning vector
+             * it is also necessary to invert z since EAXREVERB panning vectors use a left-handed coordinate system
+             */
 
             reflection_panning_direction.normalise();
-            // inversely rotate reflection_panning_vector by the angle
-            Ogre::Vector3 reflection_panning_vector =
-                {(reflection_panning_direction.x * std::cos(-angle)) + (reflection_panning_direction.z * std::sin(-angle)),
-                  reflection_panning_direction.y,
-                -(reflection_panning_direction.x * -std::sin(-angle)) + (reflection_panning_direction.z * std::cos(-angle))};
-
+            Quaternion horizontal_rotation = listener_direction.getRotationTo(Ogre::Vector3::UNIT_Z, listener_direction);
+            Quaternion vertical_rotation = listener_up.getRotationTo(Ogre::Vector3::UNIT_Y, listener_up);
+            Ogre::Vector3 reflection_panning_vector = horizontal_rotation * vertical_rotation * reflection_panning_direction;
+            reflection_panning_vector.z = -reflection_panning_vector.z;
+            reflection_panning_vector.normalise();
             reflection_panning_vector *= magnitude;
 
             float eaxreverb_reflection_panning_vector[3] =

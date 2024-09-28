@@ -63,7 +63,9 @@ bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
             return true;
         }
     }
-    return App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(Ray(a, b - a)).first;
+
+    std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(Ray(a, b - a));
+    return intersection.first && intersection.second < 1.0f ? true : false;
 }
 
 bool intersectsTerrain(Vector3 a, Vector3 start, Vector3 end, float interval) // internal helper

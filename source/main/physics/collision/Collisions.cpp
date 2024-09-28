@@ -657,7 +657,7 @@ std::pair<bool, Ogre::Real> Collisions::intersectsTris(Ogre::Ray ray)
                     continue;
 
                 auto result = Ogre::Math::intersects(ray, ctri->a, ctri->b, ctri->c);
-                if (result.first && result.second < 1.0f)
+                if (result.first)
                 {
                     return result;
                 }
